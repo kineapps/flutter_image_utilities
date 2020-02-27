@@ -85,23 +85,21 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
+        val uiScope = CoroutineScope(Dispatchers.Main)
         when (call.method) {
             "saveAsJpeg" -> {
-                try {
-                    val sourceFilePath = call.argument<String>("sourceFilePath")
-                    val destinationFilePath = call.argument<String>("destinationFilePath")
-                    val quality = call.argument<Int>("quality")
-                    val maxWidth = call.argument<Int>("maxWidth")
-                    val maxHeight = call.argument<Int>("maxHeight")
-                    val scaleModeString = call.argument<String>("scaleMode")
-                            ?: ScaleMode.FitAnyDirectionKeepAspectRatio.name
+                uiScope.launch {
+                    try {
+                        val sourceFilePath = call.argument<String>("sourceFilePath")
+                        val destinationFilePath = call.argument<String>("destinationFilePath")
+                        val quality = call.argument<Int>("quality")
+                        val maxWidth = call.argument<Int>("maxWidth")
+                        val maxHeight = call.argument<Int>("maxHeight")
+                        val scaleModeString = call.argument<String>("scaleMode")
+                                ?: ScaleMode.FitAnyDirectionKeepAspectRatio.name
 
-                    val scaleMode = ScaleMode.valueOf(scaleModeString)
+                        val scaleMode = ScaleMode.valueOf(scaleModeString)
 
-                    // https://proandroiddev.com/android-coroutine-recipes-33467a4302e9
-                    val uiScope = CoroutineScope(Dispatchers.Main)
-
-                    uiScope.launch {
                         var outputFile: File? = null
                         withContext(Dispatchers.IO) {
                             outputFile = saveImageFileAsJpeg(
@@ -114,19 +112,17 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
                                     applicationContext!!.cacheDir)
                         }
                         result.success(outputFile?.path)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        result.error("exception", e.localizedMessage, e)
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    result.error("exception", e.localizedMessage, e)
                 }
             }
             "getImageProperties" -> {
-                try {
-                    val imageFile = call.argument<String>("imageFile")
+                uiScope.launch {
+                    try {
+                        val imageFile = call.argument<String>("imageFile")
 
-                    val uiScope = CoroutineScope(Dispatchers.Main)
-
-                    uiScope.launch {
                         val properties = HashMap<String, Int>()
                         withContext(Dispatchers.IO) {
                             val options = BitmapFactory.Options()
@@ -145,10 +141,10 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
                         }
 
                         result.success(properties)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        result.error("exception", e.localizedMessage, e)
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    result.error("exception", e.localizedMessage, e)
                 }
             }
             else -> result.notImplemented()
