@@ -6,6 +6,7 @@ Image file related utilities for saving an image as JPEG with the specified qual
 
 - Supports Android and iOS.
 - Modern plugin implementation based on Kotlin (Android) and Swift (iOS).
+- Uses background processing to keep UI responsive.
 - Save an image file as JPEG using the specified JPEG quality.
 - Resize saved image to a given size.
 - Supports different scaling modes when resizing an image: fitKeepAspectRatio, fillKeepAspectRatio, fitAnyDirectionKeepAspectRatio, fillAnyDirectionKeepAspectRatio
