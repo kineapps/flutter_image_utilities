@@ -45,19 +45,25 @@ public class SwiftFlutterImageUtilitiesPlugin: NSObject, FlutterPlugin {
                 log("maxHeight: " + (maxHeight?.description ?? "null"))
                 log("scaleMode: " + scaleMode.rawValue)
 
-                do {
-                    let outputFile = try saveImageFileAsJpeg(sourceImagePath: sourceFilePath,
-                                                             destinationImagePath: destinationFilePath,
-                                                             imageQuality: quality,
-                                                             maxWidth: maxWidth,
-                                                             maxHeight: maxHeight,
-                                                             scaleMode: scaleMode)
-                    result(outputFile?.path)
-                } catch {
-                    log("saveAsJpeg failed to error:\(error)")
-                    result(FlutterError(code: "exception",
-                                        message: error.localizedDescription,
-                                        details: nil))
+                DispatchQueue.global(qos: .userInitiated).async {
+                    do {
+                        let outputFile = try saveImageFileAsJpeg(sourceImagePath: sourceFilePath,
+                                                                 destinationImagePath: destinationFilePath,
+                                                                 imageQuality: quality,
+                                                                 maxWidth: maxWidth,
+                                                                 maxHeight: maxHeight,
+                                                                 scaleMode: scaleMode)
+                        DispatchQueue.main.async {
+                            result(outputFile?.path)
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            log("saveAsJpeg failed to error:\(error)")
+                            result(FlutterError(code: "exception",
+                                                message: error.localizedDescription,
+                                                details: nil))
+                        }
+                    }
                 }
 
             case "getImageProperties":
@@ -74,26 +80,32 @@ public class SwiftFlutterImageUtilitiesPlugin: NSObject, FlutterPlugin {
                     return
                 }
 
-                do {
-                    // get source image
-                    let imageData = try Data(contentsOf: URL(fileURLWithPath: imageFile))
-                    let image = UIImage(data: imageData)
+                DispatchQueue.global(qos: .userInitiated).async {
+                    do {
+                        // get source image
+                        let imageData = try Data(contentsOf: URL(fileURLWithPath: imageFile))
+                        let image = UIImage(data: imageData)
 
-                    // TODO: get orientation
-                    let orientation = 0 // undefined orientation
-                    let dict: [String: Any] =
-                        [
-                            "width": Int(image!.size.width),
-                            "height": Int(image!.size.height),
-                            "orientation": orientation
-                        ]
-                    
-                    result(dict)
-                } catch {
-                    log("getImageProperties failed to error:\(error)")
-                    result(FlutterError(code: "exception",
-                                        message: error.localizedDescription,
-                                        details: nil))
+                        // TODO: get orientation
+                        let orientation = 0 // undefined orientation
+                        let dict: [String: Any] =
+                            [
+                                "width": Int(image!.size.width),
+                                "height": Int(image!.size.height),
+                                "orientation": orientation
+                            ]
+
+                        DispatchQueue.main.async {
+                            result(dict)
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            log("getImageProperties failed to error:\(error)")
+                            result(FlutterError(code: "exception",
+                                                message: error.localizedDescription,
+                                                details: nil))
+                        }
+                    }
                 }
 
             default:
