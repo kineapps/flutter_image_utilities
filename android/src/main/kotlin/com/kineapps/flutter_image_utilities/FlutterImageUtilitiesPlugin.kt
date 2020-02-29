@@ -114,7 +114,7 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
                         result.success(outputFile?.path)
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        result.error("exception", e.localizedMessage, e)
+                        result.error("exception", e.localizedMessage, e.toString())
                     }
                 }
             }
@@ -143,7 +143,7 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
                         result.success(properties)
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        result.error("exception", e.localizedMessage, e)
+                        result.error("exception", e.localizedMessage, e.toString())
                     }
                 }
             }
