@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
 
   var _scaleMode = ScaleMode.fitKeepAspectRatio;
 
-  var _destinationSize = Size(240, 160);
+  final _destinationSize = Size(240, 160);
 
   ImageProperties _imageProperties;
 
@@ -121,12 +121,15 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future _pickImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+    final imageFile = File(pickedFile.path);
 
-    _imageProperties = await FlutterImageUtilities.getImageProperties(image);
+    _imageProperties =
+        await FlutterImageUtilities.getImageProperties(imageFile);
 
     setState(() {
-      _sourceFile = image;
+      _sourceFile = imageFile;
     });
   }
 
