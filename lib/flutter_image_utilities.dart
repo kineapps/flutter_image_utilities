@@ -47,7 +47,7 @@ class FlutterImageUtilities {
 
   /// Get properties for the given image file [imageFile].
   static Future<ImageProperties> getImageProperties(File imageFile) async {
-    final properties = Map.from(
+    final properties = Map<String, dynamic>.from(
         await _channel.invokeMethod('getImageProperties', <String, dynamic>{
       'imageFile': imageFile.path,
     }));
@@ -115,7 +115,7 @@ class _SaveAsJpegParameters {
   final ScaleMode scaleMode;
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'sourceFilePath': sourceFile.path,
       'destinationFilePath': destinationFilePath,
       'quality': quality,
