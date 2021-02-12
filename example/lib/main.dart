@@ -3,11 +3,10 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'dart:async';
-
 import 'package:flutter_image_utilities/flutter_image_utilities.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -24,7 +23,7 @@ class _MyAppState extends State<MyApp> {
 
   var _scaleMode = ScaleMode.fitKeepAspectRatio;
 
-  final _destinationSize = Size(240, 160);
+  final _destinationSize = const Size(240, 160);
 
   ImageProperties _imageProperties;
 
@@ -53,15 +52,15 @@ class _MyAppState extends State<MyApp> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 RaisedButton(
-                  child: Text("Pick image"),
                   onPressed: () async {
                     await _pickImage();
                     await _compressImage();
                   },
+                  child: const Text("Pick image"),
                 ),
                 Text(_sourceFile?.path ?? "No image"),
                 Text(
-                    "${sourceFileSize} bytes = ${(sourceFileSize / 1024.0).toStringAsFixed(1)} kB"),
+                    "$sourceFileSize bytes = ${(sourceFileSize / 1024.0).toStringAsFixed(1)} kB"),
                 Text(
                     "width=${_imageProperties?.width}, height=${_imageProperties?.height}, orientation=${_imageProperties?.orientation}"),
                 DropdownButton<ScaleMode>(
@@ -109,7 +108,7 @@ class _MyAppState extends State<MyApp> {
                 ),
                 Text(_destinationFile?.path ?? "N/A"),
                 Text(
-                    "${destinationFileSize} bytes = ${(destinationFileSize / 1024.0).toStringAsFixed(1)} kB"),
+                    "$destinationFileSize bytes = ${(destinationFileSize / 1024.0).toStringAsFixed(1)} kB"),
                 Text(
                     "Width: ${_destinationSize.width}, height= ${_destinationSize.height}"),
               ],
@@ -142,12 +141,10 @@ class _MyAppState extends State<MyApp> {
     }
 
     final tempDir = Directory.systemTemp;
-    final tempFilePath = tempDir.path +
-        "/image" +
-        DateTime.now().millisecondsSinceEpoch.toString() +
-        ".jpg";
+    final tempFilePath =
+        "${tempDir.path}/image${DateTime.now().millisecondsSinceEpoch}.jpg";
 
-    var image = await FlutterImageUtilities.saveAsJpeg(
+    final image = await FlutterImageUtilities.saveAsJpeg(
         sourceFile: _sourceFile,
         destinationFilePath: tempFilePath,
         quality: 60,
