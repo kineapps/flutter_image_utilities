@@ -6,7 +6,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 /// Utility methods for working with image files.
@@ -24,14 +23,14 @@ class FlutterImageUtilities {
   ///
   /// Returns saved JPEG image file.
   ///
-  /// Throw an exception on error.
+  /// Throws an exception on error.
   static Future<File> saveAsJpeg(
-      {@required File sourceFile,
-      String destinationFilePath,
-      int quality,
-      int maxWidth,
-      int maxHeight,
-      ScaleMode scaleMode}) async {
+      {required File sourceFile,
+      String? destinationFilePath,
+      int? quality,
+      int? maxWidth,
+      int? maxHeight,
+      ScaleMode? scaleMode}) async {
     final params = _SaveAsJpegParameters(
         sourceFile: sourceFile,
         destinationFilePath: destinationFilePath,
@@ -40,22 +39,31 @@ class FlutterImageUtilities {
         maxHeight: maxHeight,
         scaleMode: scaleMode);
 
-    final String savedFile =
+    final String? savedFile =
         await _channel.invokeMethod('saveAsJpeg', params.toJson());
+    if (savedFile == null) {
+      throw Exception('Unknown error');
+    }
     return File(savedFile);
   }
 
   /// Get properties for the given image file [imageFile].
+  /// Throws an exception on error.
   static Future<ImageProperties> getImageProperties(File imageFile) async {
-    final properties = Map<String, dynamic>.from(
-        await _channel.invokeMethod('getImageProperties', <String, dynamic>{
+    final params = <String, dynamic>{
       'imageFile': imageFile.path,
-    }));
+    };
+    final properties = Map<String, dynamic>.from(
+        await _channel.invokeMethod<Map>('getImageProperties', params) ??
+            const <String, dynamic>{});
+    final orientationId = properties["orientation"] as int?;
     return ImageProperties(
-      width: properties['width'] as int,
-      height: properties['height'] as int,
-      orientation: _imageOrientationById[properties["orientation"] as int] ??
-          ImageOrientation.undefined,
+      width: properties['width'] as int?,
+      height: properties['height'] as int?,
+      orientation: orientationId == null
+          ? ImageOrientation.undefined
+          : (_imageOrientationById[orientationId] ??
+              ImageOrientation.undefined),
     );
   }
 }
@@ -81,8 +89,11 @@ enum ScaleMode {
   fillAnyDirectionKeepAspectRatio
 }
 
-/// Get [scaleMode] as string.
-String scaleModeToString(ScaleMode scaleMode) {
+/// Get [scaleMode] as string. Returns null if [scaleMode] is null.
+String? scaleModeToString(ScaleMode? scaleMode) {
+  if (scaleMode == null) {
+    return null;
+  }
   switch (scaleMode) {
     case ScaleMode.fitKeepAspectRatio:
       return 'FitKeepAspectRatio';
@@ -100,19 +111,19 @@ String scaleModeToString(ScaleMode scaleMode) {
 /// Parameters used in [saveAsJpeg].
 class _SaveAsJpegParameters {
   const _SaveAsJpegParameters(
-      {@required this.sourceFile,
-      @required this.destinationFilePath,
+      {required this.sourceFile,
+      this.destinationFilePath,
       this.quality,
       this.maxWidth,
       this.maxHeight,
       this.scaleMode});
 
   final File sourceFile;
-  final String destinationFilePath;
-  final int quality;
-  final int maxWidth;
-  final int maxHeight;
-  final ScaleMode scaleMode;
+  final String? destinationFilePath;
+  final int? quality;
+  final int? maxWidth;
+  final int? maxHeight;
+  final ScaleMode? scaleMode;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -159,7 +170,7 @@ class ImageProperties {
       this.height = 0,
       this.orientation = ImageOrientation.undefined});
 
-  final int width;
-  final int height;
+  final int? width;
+  final int? height;
   final ImageOrientation orientation;
 }

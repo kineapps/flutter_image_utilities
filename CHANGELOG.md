@@ -1,3 +1,7 @@
+## 1.0.0
+
+- Null safety.
+
 ## 0.0.4
 
 [Android] Fixed: any thrown exception caused crash. Now exception is delivered correctly to caller.

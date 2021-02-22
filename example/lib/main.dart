@@ -18,14 +18,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  File _sourceFile;
-  File _destinationFile;
+  File? _sourceFile;
+  File? _destinationFile;
 
-  var _scaleMode = ScaleMode.fitKeepAspectRatio;
+  ScaleMode _scaleMode = ScaleMode.fitKeepAspectRatio;
 
   final _destinationSize = const Size(240, 160);
 
-  ImageProperties _imageProperties;
+  ImageProperties? _imageProperties;
 
   @override
   void initState() {
@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
                     await _pickImage();
                     await _compressImage();
@@ -66,14 +66,16 @@ class _MyAppState extends State<MyApp> {
                 DropdownButton<ScaleMode>(
                   value: _scaleMode,
                   onChanged: (value) {
-                    _scaleMode = value;
-                    _compressImage();
+                    if (value != null) {
+                      _scaleMode = value;
+                      _compressImage();
+                    }
                   },
                   items: ScaleMode.values
                       .map<DropdownMenuItem<ScaleMode>>((ScaleMode value) {
                     return DropdownMenuItem<ScaleMode>(
                       value: value,
-                      child: Text(scaleModeToString(value)),
+                      child: Text(scaleModeToString(value) ?? '?'),
                     );
                   }).toList(),
                 ),
@@ -83,7 +85,7 @@ class _MyAppState extends State<MyApp> {
                     children: <Widget>[
                       if (_destinationFile != null)
                         Image.file(
-                          _destinationFile,
+                          _destinationFile!,
                         ),
                       Container(
                         width: _destinationSize.width,
@@ -122,14 +124,16 @@ class _MyAppState extends State<MyApp> {
   Future _pickImage() async {
     final pickedFile =
         await ImagePicker().getImage(source: ImageSource.gallery);
-    final imageFile = File(pickedFile.path);
+    if (pickedFile != null) {
+      final imageFile = File(pickedFile.path);
 
-    _imageProperties =
-        await FlutterImageUtilities.getImageProperties(imageFile);
+      _imageProperties =
+          await FlutterImageUtilities.getImageProperties(imageFile);
 
-    setState(() {
-      _sourceFile = imageFile;
-    });
+      setState(() {
+        _sourceFile = imageFile;
+      });
+    }
   }
 
   Future _compressImage() async {
@@ -137,7 +141,7 @@ class _MyAppState extends State<MyApp> {
       return;
     }
     if (_destinationFile?.existsSync() == true) {
-      _destinationFile.deleteSync();
+      _destinationFile!.deleteSync();
     }
 
     final tempDir = Directory.systemTemp;
@@ -145,14 +149,14 @@ class _MyAppState extends State<MyApp> {
         "${tempDir.path}/image${DateTime.now().millisecondsSinceEpoch}.jpg";
 
     final image = await FlutterImageUtilities.saveAsJpeg(
-        sourceFile: _sourceFile,
+        sourceFile: _sourceFile!,
         destinationFilePath: tempFilePath,
         quality: 60,
         maxWidth: _destinationSize.width.round(),
         maxHeight: _destinationSize.height.round(),
         scaleMode: _scaleMode);
 
-    imageCache.clear();
+    imageCache!.clear();
     setState(() {
       _destinationFile = null;
     });
