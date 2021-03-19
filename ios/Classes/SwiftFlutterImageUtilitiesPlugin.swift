@@ -34,16 +34,14 @@ public class SwiftFlutterImageUtilitiesPlugin: NSObject, FlutterPlugin {
                 let quality = args["quality"] as? Int
                 let maxWidth = args["maxWidth"] as? Int
                 let maxHeight = args["maxHeight"] as? Int
-                let scaleModeString = args["scaleMode"] as? String ?? ScaleMode.FitAnyDirectionKeepAspectRatio.rawValue
-
-                let scaleMode = ScaleMode(rawValue: scaleModeString) ?? ScaleMode.FitAnyDirectionKeepAspectRatio
+                let canScaleUp = args["canScaleUp"] as? Bool ?? false
 
                 log("sourceFilePath: " + sourceFilePath)
                 log("destinationFilePath: " + (destinationFilePath ?? "null"))
                 log("quality: " + (quality?.description ?? "null"))
                 log("maxWidth: " + (maxWidth?.description ?? "null"))
                 log("maxHeight: " + (maxHeight?.description ?? "null"))
-                log("scaleMode: " + scaleMode.rawValue)
+                log("canScaleUp: " + canScaleUp.description)
 
                 DispatchQueue.global(qos: .userInitiated).async {
                     do {
@@ -52,7 +50,7 @@ public class SwiftFlutterImageUtilitiesPlugin: NSObject, FlutterPlugin {
                                                                  imageQuality: quality,
                                                                  maxWidth: maxWidth,
                                                                  maxHeight: maxHeight,
-                                                                 scaleMode: scaleMode)
+                                                                 canScaleUp: canScaleUp)
                         DispatchQueue.main.async {
                             result(outputFile?.path)
                         }

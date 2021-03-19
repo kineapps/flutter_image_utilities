@@ -13,15 +13,8 @@ struct Constants {
 }
 
 struct Size {
-    var width: Int
-    var height: Int
-}
-
-enum ScaleMode: String {
-    case FitKeepAspectRatio
-    case FillKeepAspectRatio
-    case FitAnyDirectionKeepAspectRatio
-    case FillAnyDirectionKeepAspectRatio
+    var width: Int?
+    var height: Int?
 }
 
 /**
@@ -38,7 +31,7 @@ func saveImageFileAsJpeg(
     imageQuality: Int?,
     maxWidth: Int?,
     maxHeight: Int?,
-    scaleMode: ScaleMode?
+    canScaleUp: Bool
 ) throws -> URL? {
     // get destination file
     let destinationImageFile: URL
@@ -76,7 +69,7 @@ func saveImageFileAsJpeg(
         destinationFile: destinationImageFile,
         imageQuality: quality,
         maxSize: Size(width: maxWidth!, height: maxHeight!),
-        scaleMode: scaleMode ?? ScaleMode.FitAnyDirectionKeepAspectRatio,
+        canScaleUp: canScaleUp,
         properties: sourceImageProperties
     )
 
@@ -89,20 +82,24 @@ func saveImageFileAsJpeg(
 
 extension UIImage {
     func saveAsJpeg(
-        destinationFile: URL, imageQuality: Double, maxSize: Size, scaleMode: ScaleMode, properties: NSDictionary?
+        destinationFile: URL, imageQuality: Double, maxSize: Size, canScaleUp: Bool, properties: NSDictionary?
     ) throws -> URL? {
         let currentSize = Size(width: Int(size.width), height: Int(size.height))
-        let destinationSize = getDownScaledSize(originalSize: currentSize, maxSize: maxSize, scaleMode: scaleMode)
 
-        log("Saving image to \(destinationFile.path), quality=\(imageQuality), width=\(destinationSize.width), height=\(destinationSize.height)")
-        if destinationSize.width != currentSize.width || destinationSize.height != currentSize.height {
-            UIGraphicsBeginImageContextWithOptions(CGSize(width: destinationSize.width, height: destinationSize.height), true, 1)
-            draw(in: CGRect(x: 0, y: 0, width: destinationSize.width, height: destinationSize.height))
+        let scaleFactor = getScaleFactor(currentSize, maxSize)
+      
+        if scaleFactor < 1 || (scaleFactor > 1 && canScaleUp) {
+            let destinationWidth = Double(currentSize.width!) * scaleFactor
+            let destinationHeight = Double(currentSize.height!) * scaleFactor
+            log("Saving image to \(destinationFile.path), quality=\(imageQuality), width=\(destinationWidth), height=\(destinationHeight)")
+            UIGraphicsBeginImageContextWithOptions(CGSize(width: destinationWidth, height: destinationHeight), true, 1)
+            draw(in: CGRect(x: 0, y: 0, width: destinationWidth, height: destinationHeight))
             let scaledBmp = UIGraphicsGetImageFromCurrentImageContext()!
             UIGraphicsEndImageContext()
 
             return try scaledBmp.saveAsJpeg(destinationFile: destinationFile, imageQuality: imageQuality, properties: properties)
         } else {
+            log("Saving image to \(destinationFile.path), quality=\(imageQuality), keep original size width=\(currentSize.width), height=\(currentSize.height)")
             return try saveAsJpeg(destinationFile: destinationFile, imageQuality: imageQuality, properties: properties)
         }
     }
@@ -151,116 +148,10 @@ func updateJpegFileMetadata(file: URL, metadata: CGImageMetadata) throws {
     try data.write(to: file)
 }
 
-/**
- * Scale down [originalSize] to [maxSize] using [scaleMode]. If [originalSize] is
- * already smaller than [maxSize], return [originalSize].
- */
-func getDownScaledSize(originalSize: Size, maxSize: Size, scaleMode: ScaleMode) -> Size {
-    switch scaleMode {
-    case ScaleMode.FitAnyDirectionKeepAspectRatio,
-         ScaleMode.FillAnyDirectionKeepAspectRatio:
-        return getDownScaledSizeAnyDirection(originalSize, maxSize, scaleMode)
-    default:
-        return getDownScaledSizeFixedDirection(originalSize, maxSize, scaleMode)
-    }
-}
-
-func getDownScaledSizeAnyDirection(_ originalSize: Size, _ maxSize: Size, _ scaleMode: ScaleMode) -> Size {
-    let originalWidth = Double(originalSize.width)
-    let originalHeight = Double(originalSize.height)
-
-    let originalLongerSideLength = max(originalWidth, originalHeight)
-    let originalShorterSideLength = min(originalWidth, originalHeight)
-
-    let minLongerSideLength = Double(max(maxSize.width, maxSize.height))
-    let minShorterSideLength = Double(min(maxSize.width, maxSize.height))
-    if originalLongerSideLength > minLongerSideLength,
-        originalShorterSideLength > minShorterSideLength {
-        // Max size in samples is 1920x1080
-        // scale factor for the longer side
-        // e.g. 1920 / 3264 = 0,58823529
-        let longerSideScaleFactor: Double =
-            minLongerSideLength / originalLongerSideLength
-
-        // scale factor for the shorter side
-        // e.g. 1080 / 2448 = 0,44117647
-        let shorterSideScaleFactor: Double =
-            minShorterSideLength / originalShorterSideLength
-
-        // Fill: use larger of the two scale factors to achieve the requested
-        // minimum width and height
-        // Example (fill):
-        //  0,58823529 * 3264 = 1920
-        //  0,58823529 * 2448 = 1440
-
-        // Fit: use smaller of the two scale factors to achieve the requested
-        // maximum width and height
-        // Example (fit):
-        //  0,44117647 * 3264 = 1440
-        //  0,44117647 * 2448 = 1080
-        let scaleFactor: Double
-        switch scaleMode {
-        case ScaleMode.FillAnyDirectionKeepAspectRatio:
-            scaleFactor = max(longerSideScaleFactor, shorterSideScaleFactor)
-        case ScaleMode.FitAnyDirectionKeepAspectRatio:
-            scaleFactor = min(longerSideScaleFactor, shorterSideScaleFactor)
-        default:
-            scaleFactor = 1
-        }
-
-        // calculate target size
-        let targetWidth = scaleFactor * originalWidth
-        let targetHeight = scaleFactor * originalHeight
-
-        return Size(width: Int(targetWidth), height: Int(targetHeight))
-    } else {
-        return originalSize
-    }
-}
-
-/**
- * Scale down [originalSize] to [maxSize] using [scaleMode]. If [originalSize] is
- * already smaller than [maxSize], return [originalSize].
- */
-func getDownScaledSizeFixedDirection(_ originalSize: Size, _ maxSize: Size, _ scaleMode: ScaleMode) -> Size {
-    let originalWidth = originalSize.width
-    let originalHeight = originalSize.height
-    if originalWidth > maxSize.width || originalHeight > maxSize.height {
-        // Max size in samples is 1920x1080
-        // scale factor for the width
-        // e.g. 1920 / 3264 = 0,58823529
-        let scaleFactorX: Double = Double(maxSize.width) / Double(originalWidth)
-
-        // scale factor for the height
-        // e.g. 1080 / 2448 = 0,44117647
-        let scaleFactorY: Double = Double(maxSize.height) / Double(originalHeight)
-
-        // Fill: use larger of the two scale factors to achieve the requested
-        // minimum width and height
-        // Example (fill):
-        //  0,58823529 * 3264 = 1920
-        //  0,58823529 * 2448 = 1440
-
-        // Fit: use smaller of the two scale factors to achieve the requested
-        // maximum width and height
-        // Example (fit):
-        //  0,44117647 * 3264 = 1440
-        //  0,44117647 * 2448 = 1080
-        let scaleFactor: Double
-        switch scaleMode {
-        case ScaleMode.FillKeepAspectRatio:
-            scaleFactor = max(scaleFactorX, scaleFactorY)
-        case ScaleMode.FitKeepAspectRatio:
-            scaleFactor = min(scaleFactorX, scaleFactorY)
-        default:
-            scaleFactor = 1
-        }
-        // calculate target size
-        let targetWidth = scaleFactor * Double(originalWidth)
-        let targetHeight = scaleFactor * Double(originalHeight)
-
-        return Size(width: Int(targetWidth), height: Int(targetHeight))
-    } else {
-        return originalSize
-    }
+func getScaleFactor(_ sourceSize: Size, _ targetSize: Size) -> Double {
+    // e.g. source 1920*1080, target 1024*768 => 0.533, 0.711 => 0.533 => 1023 * 576
+    // e.g. source 1024*768, target 1920*1080 => 1.875, 1.406 => 1.406 => 1440 * 1080
+    let ratioX: Double = Double(targetSize.width ?? Int.max) / Double(sourceSize.width!)
+    let ratioY: Double = Double(targetSize.height ?? Int.max) / Double(sourceSize.height!)
+    return min(ratioX, ratioY)
 }
