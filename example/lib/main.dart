@@ -21,11 +21,12 @@ class _MyAppState extends State<MyApp> {
   File? _sourceFile;
   File? _destinationFile;
 
-  ScaleMode _scaleMode = ScaleMode.fitKeepAspectRatio;
+  final _destinationSize = const Size(200, 400);
 
-  final _destinationSize = const Size(240, 160);
+  bool _canScaleUp = true;
 
   ImageProperties? _imageProperties;
+  ImageProperties? _actualImageProperties;
 
   @override
   void initState() {
@@ -48,72 +49,65 @@ class _MyAppState extends State<MyApp> {
         ),
         body: ListView(
           children: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                ElevatedButton(
-                  onPressed: () async {
-                    await _pickImage();
-                    await _compressImage();
-                  },
-                  child: const Text("Pick image"),
-                ),
-                Text(_sourceFile?.path ?? "No image"),
-                Text(
-                    "$sourceFileSize bytes = ${(sourceFileSize / 1024.0).toStringAsFixed(1)} kB"),
-                Text(
-                    "width=${_imageProperties?.width}, height=${_imageProperties?.height}, orientation=${_imageProperties?.orientation}"),
-                DropdownButton<ScaleMode>(
-                  value: _scaleMode,
-                  onChanged: (value) {
-                    if (value != null) {
-                      _scaleMode = value;
-                      _compressImage();
-                    }
-                  },
-                  items: ScaleMode.values
-                      .map<DropdownMenuItem<ScaleMode>>((ScaleMode value) {
-                    return DropdownMenuItem<ScaleMode>(
-                      value: value,
-                      child: Text(scaleModeToString(value) ?? '?'),
-                    );
-                  }).toList(),
-                ),
-                Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      if (_destinationFile != null)
-                        Image.file(
-                          _destinationFile!,
-                        ),
-                      Container(
-                        width: _destinationSize.width,
-                        height: _destinationSize.height,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.red, width: 3),
-                        ),
-                      ),
-                      if (_scaleMode ==
-                              ScaleMode.fillAnyDirectionKeepAspectRatio ||
-                          _scaleMode ==
-                              ScaleMode.fitAnyDirectionKeepAspectRatio)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                      "Destination width=${_destinationSize.width}, height=${_destinationSize.height}"),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _pickImage();
+                      await _compressImage();
+                    },
+                    child: const Text("Pick image"),
+                  ),
+                  Text(_sourceFile?.path ?? "No image"),
+                  Text(
+                      "$sourceFileSize bytes = ${(sourceFileSize / 1024.0).toStringAsFixed(1)} kB"),
+                  Text(
+                      "width=${_imageProperties?.width}, height=${_imageProperties?.height}, orientation=${_imageProperties?.orientation}"),
+                  CheckboxListTile(
+                      title: const Text('Can scale up'),
+                      value: _canScaleUp,
+                      onChanged: (value) {
+                        setState(() => _canScaleUp = value ?? false);
+                        _compressImage();
+                      }),
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.hardEdge,
+                      children: <Widget>[
+                        if (_destinationFile != null)
+                          SizedBox(
+                            width: _actualImageProperties?.width?.toDouble(),
+                            height: _actualImageProperties?.height?.toDouble(),
+                            child: Image.file(
+                              _destinationFile!,
+                              width: _actualImageProperties?.width?.toDouble(),
+                              height:
+                                  _actualImageProperties?.height?.toDouble(),
+                            ),
+                          ),
                         Container(
-                          width: _destinationSize.height,
-                          height: _destinationSize.width,
+                          width: _destinationSize.width,
+                          height: _destinationSize.height,
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.red, width: 3),
                           ),
                         ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Text(_destinationFile?.path ?? "N/A"),
-                Text(
-                    "$destinationFileSize bytes = ${(destinationFileSize / 1024.0).toStringAsFixed(1)} kB"),
-                Text(
-                    "Width: ${_destinationSize.width}, height= ${_destinationSize.height}"),
-              ],
+                  Text(_destinationFile?.path ?? "N/A"),
+                  Text(
+                      "$destinationFileSize bytes = ${(destinationFileSize / 1024.0).toStringAsFixed(1)} kB"),
+                  Text(
+                      "Width: ${_actualImageProperties?.width ?? '-'}, height= ${_actualImageProperties?.height ?? '-'}"),
+                ],
+              ),
             ),
           ],
         ),
@@ -154,7 +148,10 @@ class _MyAppState extends State<MyApp> {
         quality: 60,
         maxWidth: _destinationSize.width.round(),
         maxHeight: _destinationSize.height.round(),
-        scaleMode: _scaleMode);
+        canScaleUp: _canScaleUp);
+
+    _actualImageProperties =
+        await FlutterImageUtilities.getImageProperties(image);
 
     imageCache!.clear();
     setState(() {

@@ -48,7 +48,7 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
 
         pluginBinding = binding
 
-        applicationContext = binding?.applicationContext
+        applicationContext = binding.applicationContext
 
         val messenger = pluginBinding?.binaryMessenger
         doOnAttachedToEngine(messenger!!)
@@ -95,10 +95,8 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
                         val quality = call.argument<Int>("quality")
                         val maxWidth = call.argument<Int>("maxWidth")
                         val maxHeight = call.argument<Int>("maxHeight")
-                        val scaleModeString = call.argument<String>("scaleMode")
-                                ?: ScaleMode.FitAnyDirectionKeepAspectRatio.name
-
-                        val scaleMode = ScaleMode.valueOf(scaleModeString)
+                        val canScaleUp = call.argument<Boolean>("canScaleUp") ?: false
+                                
 
                         var outputFile: File? = null
                         withContext(Dispatchers.IO) {
@@ -108,7 +106,7 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
                                     quality,
                                     maxWidth,
                                     maxHeight,
-                                    scaleMode,
+                                    canScaleUp,
                                     applicationContext!!.cacheDir)
                         }
                         result.success(outputFile?.path)

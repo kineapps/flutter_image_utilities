@@ -1,4 +1,4 @@
-// Copyright (c) 2020 KineApps. All rights reserved.
+// Copyright (c) 2021 KineApps. All rights reserved.
 //
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
@@ -14,9 +14,17 @@ class FlutterImageUtilities {
       MethodChannel('flutter_image_utilities');
 
   /// Save [sourceFile] as JPEG to [destinationFilePath] using given
-  /// [quality] (1-100, null=100). Resize image to given [maxWidth] and
-  /// [maxHeight] using specified [scaleMode]. Original image size is not
-  ///  modified if [maxWidth] and [maxHeight] are null.
+  /// [quality] (1-100, null=100).
+  ///
+  /// Image is scaled down to maximum size [maxWidth] and [maxHeight].
+  ///
+  /// If image is already smaller than [maxWidth] and [maxHeight], the image is
+  /// scaled up to maximum size [maxWidth] and [maxHeight] only if [canScaleUp]
+  /// is true. Otherwise image is not resized.
+  ///
+  /// [maxWidth] and/or [maxHeight] can be also null to not to resize image.
+  ///
+  /// Resizing keeps aspect ratio.
   ///
   /// If [destinationFilePath] is null, a temporary file is created
   /// automatically.
@@ -30,14 +38,14 @@ class FlutterImageUtilities {
       int? quality,
       int? maxWidth,
       int? maxHeight,
-      ScaleMode? scaleMode}) async {
+      bool canScaleUp = false}) async {
     final params = _SaveAsJpegParameters(
         sourceFile: sourceFile,
         destinationFilePath: destinationFilePath,
         quality: quality,
         maxWidth: maxWidth,
         maxHeight: maxHeight,
-        scaleMode: scaleMode);
+        canScaleUp: canScaleUp);
 
     final String? savedFile =
         await _channel.invokeMethod('saveAsJpeg', params.toJson());
@@ -68,46 +76,6 @@ class FlutterImageUtilities {
   }
 }
 
-/// Scale mode used in [saveAsJpeg].
-enum ScaleMode {
-  /// Image is resized to the specified maximum size keeping
-  /// aspect ratio.
-  fitKeepAspectRatio,
-
-  /// Image is resized to the minimum size so that image fills specified
-  /// size and keeps aspect ratio.
-  fillKeepAspectRatio,
-
-  /// Image is resized to the specified maximum size keeping
-  /// aspect ratio. Image may be virtually rotated to fit to the specified
-  /// maximum size optimally.
-  fitAnyDirectionKeepAspectRatio,
-
-  /// Image is resized to the minimum size so that image fills specified
-  /// size and keeps aspect ratio. Image may be virtually rotated to fill
-  /// the specified maximum size optimally.
-  fillAnyDirectionKeepAspectRatio
-}
-
-/// Get [scaleMode] as string. Returns null if [scaleMode] is null.
-String? scaleModeToString(ScaleMode? scaleMode) {
-  if (scaleMode == null) {
-    return null;
-  }
-  switch (scaleMode) {
-    case ScaleMode.fitKeepAspectRatio:
-      return 'FitKeepAspectRatio';
-    case ScaleMode.fillKeepAspectRatio:
-      return 'FillKeepAspectRatio';
-    case ScaleMode.fitAnyDirectionKeepAspectRatio:
-      return 'FitAnyDirectionKeepAspectRatio';
-    case ScaleMode.fillAnyDirectionKeepAspectRatio:
-      return 'FillAnyDirectionKeepAspectRatio';
-    default:
-      return null;
-  }
-}
-
 /// Parameters used in [saveAsJpeg].
 class _SaveAsJpegParameters {
   const _SaveAsJpegParameters(
@@ -116,14 +84,14 @@ class _SaveAsJpegParameters {
       this.quality,
       this.maxWidth,
       this.maxHeight,
-      this.scaleMode});
+      this.canScaleUp = false});
 
   final File sourceFile;
   final String? destinationFilePath;
   final int? quality;
   final int? maxWidth;
   final int? maxHeight;
-  final ScaleMode? scaleMode;
+  final bool canScaleUp;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -132,7 +100,7 @@ class _SaveAsJpegParameters {
       'quality': quality,
       'maxWidth': maxWidth,
       'maxHeight': maxHeight,
-      'scaleMode': scaleModeToString(scaleMode)
+      'canScaleUp': canScaleUp,
     };
   }
 }
