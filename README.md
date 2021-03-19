@@ -1,6 +1,6 @@
 # flutter_image_utilities
 
-Image file related utilities for saving an image as JPEG with the specified quality, size and scale mode and for getting image properties.
+Image file related utilities for saving an image as JPEG with the specified quality and size and for getting image properties.
 
 ## Features
 
@@ -9,7 +9,6 @@ Image file related utilities for saving an image as JPEG with the specified qual
 - Uses background processing to keep UI responsive.
 - Save an image file as JPEG using the specified JPEG quality.
 - Resize saved image to a given size.
-- Supports different scaling modes when resizing an image: fitKeepAspectRatio, fillKeepAspectRatio, fitAnyDirectionKeepAspectRatio, fillAnyDirectionKeepAspectRatio
 - Get image width and height.
 - Get image orientation (Android).
 
@@ -24,7 +23,7 @@ final jpegFile = await FlutterImageUtilities.saveAsJpeg(
   quality: 60,
   maxWidth: 1920,
   maxHeight: 1080,
-  scaleMode: ScaleMode.fitKeepAspectRatio);
+  canScaleUp: false);
 ```
 
 ### Get image properties
