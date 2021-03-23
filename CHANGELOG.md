@@ -1,3 +1,8 @@
+## 2.0.1
+
+[Android] Updated compileSdkVersion and targetSdkVersion to 30
+[Android] Fixed #1 
+
 ## 2.0.0
 
 - saveAsJpeg: replaced parameter ScaleMode with canScaleUp
