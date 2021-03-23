@@ -119,7 +119,7 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
             "getImageProperties" -> {
                 uiScope.launch {
                     try {
-                        val imageFile = call.argument<String>("imageFile")
+                        val imageFile = call.argument<String>("imageFile")!!
 
                         val properties = HashMap<String, Int>()
                         withContext(Dispatchers.IO) {
