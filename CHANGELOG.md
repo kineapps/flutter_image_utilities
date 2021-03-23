@@ -1,3 +1,7 @@
+## 2.0.0
+
+- saveAsJpeg: replaced parameter ScaleMode with canScaleUp
+
 ## 1.0.0
 
 - Null safety.
