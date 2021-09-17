@@ -117,7 +117,7 @@ class _MyAppState extends State<MyApp> {
 
   Future _pickImage() async {
     final pickedFile =
-        await ImagePicker().getImage(source: ImageSource.gallery);
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final imageFile = File(pickedFile.path);
 
