@@ -1,3 +1,13 @@
+## 2.1.0
+
+- [Android] Removed V1 embedding
+- [Android] removed obsolete android.enableR8
+- [Android] updated to Kotlin 1.5.30
+- [Android] upgraded gradle
+- [Android] jcenter => mavenCentral
+- [Android] set compileSdkVersion to 31
+- [iOS] updated Swift version to 5.0
+
 ## 2.0.1
 
 [Android] Updated compileSdkVersion and targetSdkVersion to 30
