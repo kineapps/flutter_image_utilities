@@ -11,7 +11,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CoroutineScope
@@ -30,13 +29,6 @@ class FlutterImageUtilitiesPlugin : FlutterPlugin, MethodCallHandler {
 
     companion object {
         private const val LOG_TAG = "FlutterImageUtilPlugin"
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            Log.d(LOG_TAG, "registerWith")
-            val plugin = FlutterImageUtilitiesPlugin()
-            plugin.applicationContext = registrar.activeContext()
-            plugin.doOnAttachedToEngine(registrar.messenger())
-        }
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
