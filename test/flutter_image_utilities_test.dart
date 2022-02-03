@@ -5,7 +5,9 @@ void main() {
   const MethodChannel channel = MethodChannel('flutter_image_utilities');
 
   setUp(() {
-    channel.setMockMethodCallHandler((MethodCall methodCall) {});
+    channel.setMockMethodCallHandler((MethodCall methodCall) {
+      return null;
+    });
   });
 
   tearDown(() {});
