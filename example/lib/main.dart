@@ -153,7 +153,7 @@ class _MyAppState extends State<MyApp> {
     _actualImageProperties =
         await FlutterImageUtilities.getImageProperties(image);
 
-    imageCache!.clear();
+    imageCache.clear();
     setState(() {
       _destinationFile = null;
     });
