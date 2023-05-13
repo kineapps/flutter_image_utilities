@@ -5,7 +5,8 @@ void main() {
   const MethodChannel channel = MethodChannel('flutter_image_utilities');
 
   setUp(() {
-    channel.setMockMethodCallHandler((MethodCall methodCall) {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
       return null;
     });
   });
