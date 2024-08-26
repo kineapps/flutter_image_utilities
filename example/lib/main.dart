@@ -10,14 +10,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_utilities/flutter_image_utilities.dart';
 import 'package:image_picker/image_picker.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   File? _sourceFile;
   File? _destinationFile;
 
