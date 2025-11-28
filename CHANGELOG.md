@@ -1,3 +1,7 @@
+## 2.1.1
+
+- [Android] Updated compileSdkVersion to 36, Gradle to 8.14 and Java/Kotlin compatibility to version 17
+
 ## 2.1.0
 
 - [Android] Removed V1 embedding

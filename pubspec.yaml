@@ -1,6 +1,6 @@
 name: flutter_image_utilities
 description: Image file related utilities for saving an image as JPEG with the specified quality and size and for getting image properties.
-version: 2.1.0
+version: 2.1.1
 homepage: https://github.com/kineapps/flutter_image_utilities
 repository: https://github.com/kineapps/flutter_image_utilities
 
