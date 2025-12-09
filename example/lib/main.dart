@@ -75,7 +75,7 @@ class MyAppState extends State<MyApp> {
                       value: _canScaleUp,
                       onChanged: (value) {
                         setState(() => _canScaleUp = value ?? false);
-                        _compressImage();
+                        unawaited(_compressImage());
                       }),
                   Center(
                     child: Stack(
