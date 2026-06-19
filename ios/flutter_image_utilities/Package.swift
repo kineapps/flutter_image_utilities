@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "flutter_image_utilities",
     platforms: [
-        .iOS(.v12)
+        .iOS(.v13)
     ],
     products: [
         .library(name: "flutter-image-utilities", targets: ["flutter_image_utilities"])

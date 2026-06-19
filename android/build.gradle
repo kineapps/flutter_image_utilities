@@ -33,7 +33,7 @@ if (agpMajor < 9) {
 android {
     // Conditional for compatibility with AGP <4.2.
     if (project.android.hasProperty("namespace")) {
-        namespace 'com.kineapps.flutter_image_utilities'        
+        namespace 'com.kineapps.flutter_image_utilities'
     }
 
     compileSdkVersion 36
@@ -48,10 +48,9 @@ android {
         test.java.srcDirs += 'src/test/kotlin'
     }
     defaultConfig {
-        minSdkVersion 19
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        minSdkVersion 24
     }
-    lintOptions {
+    lint {
         disable 'InvalidPackage'
     }
 }
@@ -65,7 +64,5 @@ kotlin {
 dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'junit:junit:4.13.2'
 }

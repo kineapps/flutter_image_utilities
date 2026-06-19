@@ -4,7 +4,7 @@ Image file related utilities for saving an image as JPEG with the specified qual
 
 ## Features
 
-- Supports Android and iOS.
+- Supports Android (API level 24+) and iOS 13+.
 - Modern plugin implementation based on Kotlin (Android) and Swift (iOS).
 - Uses background processing to keep UI responsive.
 - Save an image file as JPEG using the specified JPEG quality.
