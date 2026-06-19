@@ -7,8 +7,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter_image_utilities/flutter_image_utilities.dart';
-import 'package:image_picker/image_picker.dart';
 
 void main() => runApp(const MyApp());
 
@@ -118,10 +118,14 @@ class MyAppState extends State<MyApp> {
   }
 
   Future _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      final imageFile = File(pickedFile.path);
+    final pickedPath = await FlutterFileDialog.pickFile(
+      params: const OpenFileDialogParams(
+        fileExtensionsFilter: ["jpg", "jpeg", "png"],
+        mimeTypesFilter: ["image/*"],
+      ),
+    );
+    if (pickedPath != null) {
+      final imageFile = File(pickedPath);
 
       _imageProperties =
           await FlutterImageUtilities.getImageProperties(imageFile);

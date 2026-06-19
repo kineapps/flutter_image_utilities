@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kineapps.flutter_image_utilities_example">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
         android:label="flutter_image_utilities_example"
         android:icon="@mipmap/ic_launcher">
