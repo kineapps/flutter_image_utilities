@@ -1,3 +1,8 @@
+## 2.3.0
+
+- [iOS] Added Swift Package Manager (SPM) support alongside existing CocoaPods support
+- [iOS] Raised minimum iOS deployment target to 12.0
+
 ## 2.2.0
 
 - Updates minimum supported SDK version to Flutter 3.44 / Dart 3.12

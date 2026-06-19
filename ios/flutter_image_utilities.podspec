@@ -1,22 +1,22 @@
 #
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
+# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
+# Run `pod lib lint flutter_image_utilities.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_image_utilities'
-  s.version          = '0.0.1'
-  s.summary          = 'A new flutter plugin project.'
+  s.version          = '2.3.0'
+  s.summary          = 'Image file related utilities for iOS.'
   s.description      = <<-DESC
-A new flutter plugin project.
+A Flutter plugin for saving an image as JPEG with the specified quality and size and for getting image properties on iOS.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/kineapps/flutter_image_utilities'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'KineApps' => 'https://github.com/kineapps' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
-  s.public_header_files = 'Classes/**/*.h'
+  s.source_files = 'flutter_image_utilities/Sources/flutter_image_utilities/**/*.swift'
   s.dependency 'Flutter'
+  s.platform = :ios, '12.0'
 
-  s.ios.deployment_target = '10.0'
-  s.swift_version = '5.0'
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
+  s.swift_version = '5.9'
 end
-

@@ -4,6 +4,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import Foundation
+import ImageIO
 
 // Metadata related links:
 // https://developer.apple.com/library/archive/qa/qa1895/_index.html

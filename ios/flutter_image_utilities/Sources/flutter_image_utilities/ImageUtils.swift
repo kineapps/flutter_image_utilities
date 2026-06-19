@@ -5,6 +5,7 @@
 
 import AVFoundation
 import Foundation
+import ImageIO
 import UIKit
 
 // https://developer.apple.com/documentation/avfoundation/avfiletype/2873427-jpg
